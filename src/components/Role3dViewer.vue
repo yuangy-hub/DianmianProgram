@@ -51,6 +51,13 @@ let currentModel = null
 
 // ====== 加载模型的函数 ======
 function loadModel(modelPath) {
+  console.log('开始加载模型:', modelPath)
+  try {
+      const loader = new GLTFLoader()
+      loader.load(modelPath, onLoad, onProgress, onError)
+    } catch (e) {
+      console.error('❌ loadModel 抛出异常:', e)
+    }
   loading.value = true
 
   console.log('开始加载模型:', modelPath)
@@ -171,6 +178,7 @@ function adjustCamera(model) {
 
 // ====== 初始化3D场景 ======
 function initScene() {
+console.log('🔧 WebGL 上下文数量:', document.querySelectorAll('canvas').length)
   const dom = canvasWrap.value
   if (!dom) {
     console.error('canvasWrap 容器不存在')

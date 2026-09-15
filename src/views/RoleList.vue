@@ -27,7 +27,7 @@
           <!-- 3D模型区域 -->
           <div class="model-container">
             <Role3dViewer
-              :model-path="`/models/role-${item.id}.glb`"
+              :model-path="`${baseUrl}models/role-${item.id}.glb`"
               :show-controls="false"
               :auto-rotate="true"
               :is-mini="true"
@@ -55,6 +55,7 @@
 </template>
 
 <script setup>
+const baseUrl = import.meta.env.BASE_URL
 import { roleList } from '../data/role'
 import Role3dViewer from '../components/Role3dViewer.vue'
 
