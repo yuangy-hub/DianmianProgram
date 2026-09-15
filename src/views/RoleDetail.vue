@@ -105,7 +105,7 @@ const ipId = computed(() => Number(route.params.id))
 
 const currentIp = computed(() => roleList.find(item => item.id === ipId.value))
 
-const modelUrl = computed(() => `/models/role-${ipId.value}.glb`)
+const modelUrl = computed(() => `${import.meta.env.BASE_URL}models/role-${ipId.value}.glb`)
 
 // 上一个IP
 const prevIp = computed(() => {

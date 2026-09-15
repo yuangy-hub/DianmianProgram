@@ -27,7 +27,7 @@
           <!-- 3D模型区域 -->
           <div class="model-container">
             <Role3dViewer
-              :model-path="`/models/role-${item.id}.glb`"
+              :model-path="`${baseUrl}models/role-${item.id}.glb`"
               :show-controls="false"
               :auto-rotate="true"
               :is-mini="true"
@@ -57,6 +57,7 @@
 <script setup>
 import { roleList } from '../data/role'
 import Role3dViewer from '../components/Role3dViewer.vue'
+const baseUrl = import.meta.env.BASE_URL
 
 // 为每个IP配一个emoji图标
 const getIpIcon = (id) => {
