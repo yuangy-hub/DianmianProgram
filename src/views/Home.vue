@@ -46,7 +46,7 @@
         </div>
 
         <!-- IP形象快速预览 -->
-        <div class="ip-preview">
+        <div class="ip-preview flex flex-wrap gap-3 md:justify-start max-md:justify-center">
           <div class="preview-item" v-for="item in previewIps" :key="item.id">
             <span class="preview-icon">{{ item.icon }}</span>
             <span class="preview-name">{{ item.name }}</span>
