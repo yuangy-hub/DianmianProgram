@@ -357,7 +357,8 @@ const previewIps = [
 .enter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 8px;
   padding: 14px 36px;
   background: linear-gradient(135deg, #5a4a3a, #7a6a5a);
   color: #fff;
