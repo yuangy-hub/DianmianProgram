@@ -54,14 +54,17 @@
         </div>
 
         <!-- 进入按钮 -->
-        <div class="flex justify-center mt-8">
-          <router-link to="/role-list" class="enter-btn">
-            <span class="btn-text">进入IP形象展示</span>
-            <svg class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </router-link>
+        <div class="flex justify-center w-full mt-8">
+          <div class="w-full max-w-[280px]">
+            <router-link to="/role-list" class="enter-btn">
+              <span class="btn-text">进入IP形象展示</span>
+              <svg class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </router-link>
+          </div>
         </div>
+
 
         <!-- 底部装饰 -->
         <div class="footer-deco">

@@ -124,23 +124,11 @@ function loadModel(modelPath) {
       clearTimeout(loadTimer)
       console.error('模型加载失败:', err)
       loading.value = false
-      showFallbackCube()
     }
   )
 }
 
-function showFallbackCube() {
-  const fallbackBox = new THREE.Mesh(
-    new THREE.BoxGeometry(1, 1, 1),
-    new THREE.MeshStandardMaterial({ color: 0x4299e1 })
-  )
-  fallbackBox.name = 'testBox'
-  scene.add(fallbackBox)
-  // 调整相机看到立方体
-  camera.position.set(2, 2, 3)
-  controls.target.set(0, 0, 0)
-  controls.update()
-}
+
 function adjustCamera(model) {
   // 计算模型包围盒
   const box = new THREE.Box3().setFromObject(model)
