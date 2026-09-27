@@ -16,13 +16,11 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-
 const props = defineProps({
   modelPath: {
     type: String,
@@ -42,25 +40,19 @@ const props = defineProps({
     default: false
   }
 })
-
 const canvasWrap = ref(null)
 const loading = ref(true)
-
 let scene, camera, renderer, controls, rafId
 let currentModel = null
-
 // ====== 加载模型的函数 ======
 function loadModel(modelPath) {
   loading.value = true
-
   console.log('开始加载模型:', modelPath)
-
   // 清除旧模型
   if (currentModel) {
     scene.remove(currentModel)
     currentModel = null
   }
-
   // 移除所有辅助对象
   const toRemove = []
   scene.children.forEach(child => {
@@ -72,58 +64,42 @@ function loadModel(modelPath) {
     }
   })
   toRemove.forEach(child => scene.remove(child))
-
   const loader = new GLTFLoader()
-
   loader.load(
     modelPath,
     (gltf) => {
       console.log('模型加载成功:', modelPath)
       console.log('模型结构:', gltf.scene)
-
       loading.value = false
-
       const model = gltf.scene
-
       // 计算包围盒
       const box = new THREE.Box3().setFromObject(model)
       const center = box.getCenter(new THREE.Vector3())
       const size = box.getSize(new THREE.Vector3())
-
       console.log('原始模型尺寸:', size)
       console.log('原始模型中心:', center)
-
       // 重置模型位置到原点
       model.position.set(0, 0, 0)
-
       // 计算合适的缩放和位置
       const maxDim = Math.max(size.x, size.y, size.z)
-
       // 根据是否为mini模式调整目标大小
       const targetSize = props.isMini ? 1.5 : 2.5
       const scale = targetSize / maxDim
-
       console.log('缩放比例:', scale)
-
       // 应用缩放
       model.scale.set(scale, scale, scale)
-
       // 计算缩放后的中心偏移
       const scaledBox = new THREE.Box3().setFromObject(model)
       const scaledCenter = scaledBox.getCenter(new THREE.Vector3())
-
       // 将模型居中
       model.position.x = -scaledCenter.x
       model.position.y = -scaledCenter.y
       model.position.z = -scaledCenter.z
-
       // 添加到场景
       scene.add(model)
       currentModel = model
-
       // 自动调整相机
       adjustCamera(model)
-
       console.log('模型已添加到场景')
     },
     (progress) => {
@@ -137,7 +113,6 @@ function loadModel(modelPath) {
     }
   )
 }
-
 function showFallbackCube() {
   const fallbackBox = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
@@ -150,25 +125,20 @@ function showFallbackCube() {
   controls.target.set(0, 0, 0)
   controls.update()
 }
-
 function adjustCamera(model) {
   // 计算模型包围盒
   const box = new THREE.Box3().setFromObject(model)
   const size = box.getSize(new THREE.Vector3())
   const center = box.getCenter(new THREE.Vector3())
-
   // 计算合适距离
   const maxDim = Math.max(size.x, size.y, size.z)
   const distance = maxDim * (props.isMini ? 2.5 : 2)
-
   console.log('调整相机，距离:', distance)
-
   // 设置相机位置
   camera.position.set(distance * 0.6, distance * 0.6, distance)
   controls.target.copy(center)
   controls.update()
 }
-
 // ====== 初始化3D场景 ======
 function initScene() {
   const dom = canvasWrap.value
@@ -176,21 +146,16 @@ function initScene() {
     console.error('canvasWrap 容器不存在')
     return
   }
-
   const width = dom.clientWidth
   const height = dom.clientHeight
-
   console.log('初始化3D场景, 容器尺寸:', width, 'x', height)
-
   // 场景
   scene = new THREE.Scene()
   scene.background = new THREE.Color(0xe8e8e8)
-
   // 相机 - 使用更合适的位置
   camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000)
   camera.position.set(3, 3, 5)
   camera.lookAt(0, 0, 0)
-
   // 渲染器
   renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -199,29 +164,22 @@ function initScene() {
   renderer.setSize(width, height)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   dom.appendChild(renderer.domElement)
-
   console.log('渲染器已创建')
-
   // 灯光 - 增加更多灯光
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
   scene.add(ambientLight)
-
   const mainLight = new THREE.DirectionalLight(0xffffff, 1.0)
   mainLight.position.set(5, 10, 7)
   scene.add(mainLight)
-
   const backLight = new THREE.DirectionalLight(0xffffff, 0.5)
   backLight.position.set(-5, 0, -5)
   scene.add(backLight)
-
   const fillLight = new THREE.DirectionalLight(0xffffff, 0.3)
   fillLight.position.set(0, -5, 5)
   scene.add(fillLight)
-
   // 添加环境光
   const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6)
   scene.add(hemiLight)
-
   // 轨道控制器
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true
@@ -231,10 +189,8 @@ function initScene() {
   controls.enablePan = !props.isMini
   controls.target.set(0, 0, 0)
   controls.update()
-
   // 加载模型
   loadModel(props.modelPath)
-
   // 渲染循环
   function animate() {
     rafId = requestAnimationFrame(animate)
@@ -246,10 +202,8 @@ function initScene() {
     }
   }
   animate()
-
   console.log('3D场景初始化完成')
 }
-
 function onResize() {
   const dom = canvasWrap.value
   if (!dom || !camera || !renderer) return
@@ -259,7 +213,6 @@ function onResize() {
   camera.updateProjectionMatrix()
   renderer.setSize(width, height)
 }
-
 // ====== 监听模型路径变化 ======
 watch(() => props.modelPath, (newPath, oldPath) => {
   if (newPath && newPath !== oldPath && scene) {
@@ -267,14 +220,12 @@ watch(() => props.modelPath, (newPath, oldPath) => {
     loadModel(newPath)
   }
 })
-
 // ====== 生命周期 ======
 onMounted(() => {
   nextTick(() => {
     initScene()
   })
 })
-
 onBeforeUnmount(() => {
   console.log('清理3D资源')
   cancelAnimationFrame(rafId)
@@ -295,7 +246,6 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
 <style scoped>
 div[ref="canvasWrap"] {
   min-height: 200px;
