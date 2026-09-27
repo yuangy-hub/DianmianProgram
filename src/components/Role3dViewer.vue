@@ -20,6 +20,7 @@
 import { ref, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 const props = defineProps({
   modelPath: {
@@ -48,26 +49,41 @@ let currentModel = null
 function loadModel(modelPath) {
   loading.value = true
   console.log('开始加载模型:', modelPath)
-  // 清除旧模型
+  // 清除旧模型并释放资源
   if (currentModel) {
     scene.remove(currentModel)
+    currentModel.traverse((child) => {
+      if (child.isMesh) {
+        child.geometry?.dispose()
+        if (Array.isArray(child.material)) {
+          child.material.forEach(mat => mat.dispose())
+        } else {
+          child.material?.dispose()
+        }
+      }
+    })
     currentModel = null
   }
-  // 移除所有辅助对象
-  const toRemove = []
-  scene.children.forEach(child => {
-    if (child.isMesh && child.name === 'testBox') {
-      toRemove.push(child)
-    }
-    if (child.isGridHelper || child.isAxesHelper) {
-      toRemove.push(child)
-    }
-  })
-  toRemove.forEach(child => scene.remove(child))
+
   const loader = new GLTFLoader()
+  // 配置Draco解码器
+  const dracoLoader = new DRACOLoader()
+  // 使用CDN的解码器wasm文件
+  dracoLoader.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/')
+  dracoLoader.preload()
+  loader.setDRACOLoader(dracoLoader)
+
+  // 5秒超时兜底
+  let loadTimer = setTimeout(()=>{
+    console.error('模型加载超时', modelPath)
+    loading.value = false
+    showFallbackCube()
+  },5000)
+
   loader.load(
     modelPath,
     (gltf) => {
+      clearTimeout(loadTimer)
       console.log('模型加载成功:', modelPath)
       console.log('模型结构:', gltf.scene)
       loading.value = false
@@ -82,7 +98,6 @@ function loadModel(modelPath) {
       model.position.set(0, 0, 0)
       // 计算合适的缩放和位置
       const maxDim = Math.max(size.x, size.y, size.z)
-      // 根据是否为mini模式调整目标大小
       const targetSize = props.isMini ? 1.5 : 2.5
       const scale = targetSize / maxDim
       console.log('缩放比例:', scale)
@@ -106,13 +121,14 @@ function loadModel(modelPath) {
       console.log(`加载进度: ${Math.round((progress.loaded / progress.total) * 100)}%`)
     },
     (err) => {
+      clearTimeout(loadTimer)
       console.error('模型加载失败:', err)
       loading.value = false
-      // 显示备用立方体
       showFallbackCube()
     }
   )
 }
+
 function showFallbackCube() {
   const fallbackBox = new THREE.Mesh(
     new THREE.BoxGeometry(1, 1, 1),
